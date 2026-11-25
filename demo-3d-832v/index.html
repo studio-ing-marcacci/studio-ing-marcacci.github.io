@@ -99,7 +99,7 @@ const ground = new THREE.Mesh(new THREE.PlaneGeometry(90, 90), new THREE.ShadowM
 ground.rotation.x = -Math.PI / 2; ground.position.y = -0.245; ground.receiveShadow = true; scene.add(ground);
 
 const multi = CFG.floors.length > 1;
-let mode = multi ? CFG.floors[0].key : "all", view = "3d", showLabels = true;
+let mode = multi ? (CFG.floors.find(f => f.key === "pt") || CFG.floors[0]).key : "all", view = "3d", showLabels = true;
 const groups = {}, labels = {}; let center = new THREE.Vector3(), size = 10;
 
 const seg = document.getElementById("floorseg");
@@ -132,7 +132,8 @@ function frame(reset) {
   const tgt = new THREE.Vector3(center.x, h / 2 + 0.3, center.z);
   const fov = THREE.MathUtils.degToRad(cam.fov);
   const fit = Math.max(size / cam.aspect, size * 0.8) / (2 * Math.tan(fov / 2));
-  const d = fit * (view === "top" ? 0.95 : 1.15) + h * 0.9;
+  const fitV = (h + 3.5) / (2 * Math.tan(fov / 2));
+  const d = view === "top" ? fit * 0.95 + h * 0.9 : Math.max(fit * 1.15 + h * 0.5, fitV * 1.3);
   if (reset) {
     const dir = view === "top" ? new THREE.Vector3(0.001, 1, 0.12) : (mode === "all" && multi ? new THREE.Vector3(0.6, 0.62, 0.9) : new THREE.Vector3(0.55, 0.95, 0.85));
     cam.position.copy(tgt).addScaledVector(dir.normalize(), d); controls.target.copy(tgt);
